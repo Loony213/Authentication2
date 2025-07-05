@@ -21,7 +21,7 @@ jobs:
 
     - name: Build Docker images for frontend
       run: |
-        docker build -t kamartinez/password .password-microservice
+        docker build -t kamartinez/password ./password-microservice
 
     - name: Push images to Docker Hub
       run: |
