@@ -1,11 +1,9 @@
 const express = require('express');
 const PasswordController = require('./controllers/passwordController');
 const config = require('./config/config');
-const cors = require('cors');
 
 const app = express();
 
-app.use(cors());
 // Ruta para la generación de contraseñas
 app.get('/generate-password', PasswordController.generatePassword);
 
