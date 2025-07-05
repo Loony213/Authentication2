@@ -1,6 +1,5 @@
 const PasswordService = require('../services/passwordService');
 
-// El controlador maneja la interacción con el cliente
 class PasswordController {
   static async generatePassword(req, res) {
     try {
