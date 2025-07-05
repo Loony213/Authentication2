@@ -2,11 +2,12 @@ from flask import Flask, send_file, jsonify
 from flask_cors import CORS
 from services.captcha_service import CaptchaService
 import io
+from PIL import Image
 
 app = Flask(__name__)
 
 # Habilitar CORS para todas las rutas
-CORS(app, resources={r"/*": {"origins": "*"}})  # Permitir solicitudes desde cualquier origen
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/generate-captcha', methods=['GET'])
 def generate_captcha():
@@ -16,9 +17,10 @@ def generate_captcha():
     # Crear un flujo de bytes para almacenar la imagen generada
     img_io = io.BytesIO()
 
-    # En lugar de usar .save(), usamos .write() para escribir la imagen en img_io
-    captcha_image.write(img_io)  # Escribir directamente en el flujo de bytes
-    img_io.seek(0)  # Regresar al principio del flujo de bytes
+    # Usar PIL para guardar la imagen en el flujo de bytes
+    captcha_image = Image.open(captcha_image)  # Abrir la imagen generada como objeto PIL
+    captcha_image.save(img_io, 'PNG')  # Guardar la imagen en img_io como PNG
+    img_io.seek(0)  # Mover el puntero al principio del flujo
 
     # Enviar la imagen como respuesta HTTP
     return send_file(img_io, mimetype='image/png', as_attachment=True, download_name='captcha.png')
