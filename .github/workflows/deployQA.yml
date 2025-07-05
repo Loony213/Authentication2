@@ -1,0 +1,43 @@
+name: Deploy Authentication to EC2
+
+on:
+  push:
+    branches:
+      - test  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: Set up SSH key for EC2
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Build Docker images for frontend
+      run: |
+        docker build -t kamartinez/password .password-microservice
+
+    - name: Push images to Docker Hub
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push kamartinez/password
+
+    - name: Deploy services to EC2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: 52.5.241.128
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker stop password || true
+          docker rm password || true
+
+          docker pull kamartinez/password
+
+          docker run -d --name password -p 8002:8002 --restart unless-stopped kamartinez/password
